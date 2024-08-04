@@ -1,0 +1,112 @@
+---
+title: "modeling-basics"
+author: "Vandrade"
+date: "2024-07-08"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+
+data(ames) 
+
+```
+
+```{r}
+
+ames |> 
+  ggplot(aes(x=Sale_Price)) + 
+  geom_histogram(col = 'white', bins = 50)
+
+ames |> 
+  filter(Lot_Area <= 50000) |> 
+  ggplot(aes(x = Lot_Area)) + 
+  geom_histogram(color = 'white', bins = 50)
+
+ames |> 
+  ggplot(aes(x = Year_Built)) + 
+  geom_histogram(color = 'white', bins = 40)
+
+```
+
+# Spliting Train and Test data
+
+## Random - traditional - spliting
+```{r}
+
+set.seed(101)
+
+ames_split <- ames |> 
+  initial_split(.9)
+
+ames_train <- ames_split |> 
+  training()
+
+ames_test <- ames_split |> 
+  testing()
+
+ames_train |> 
+  ggplot(aes(x = Sale_Price)) +
+  geom_density(color = 'red') +
+  geom_density(data = ames_test, color = 'blue')
+
+```
+
+## Stratified Spliting (maintaning the distribution of a series)
+
+```{r}
+
+set.seed(100)
+
+ames_split <- ames |> 
+  initial_split(prop = 0.9, strata = Sale_Price) 
+
+ames_train <- ames_split |> 
+  training()
+
+ames_test <- ames_split |> 
+  testing()
+
+ames_train |> 
+  ggplot(aes(x = Sale_Price)) +
+  geom_density(color = 'red') +
+  geom_density(data = ames_test, color = 'blue')
+
+```
+
+## Spliting Validation and Training sets
+```{r}
+
+set.seed(52) 
+
+ames_val_split <- ames |> 
+  initial_validation_split(prop = c(0.7, 0.15))
+
+ames_train <- ames_val_split |> 
+  training()
+
+ames_validation <- ames_val_split |> 
+  validation()
+
+ames_test <- ames_val_split |> 
+  testing()
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
