@@ -5,7 +5,11 @@ date: "2024-07-08"
 output: html_document
 ---
 
-```{r}
+# TIDY MODELING WITH R
+
+## Chapter 4 - 5
+
+```{r librarys 1}
 library(tidyverse)
 library(tidymodels)
 
@@ -13,7 +17,10 @@ data(ames)
 
 ```
 
-```{r}
+```{r ames exploratory}
+
+ames <- ames |> 
+  mutate(Sale_Price = log10(Sale_Price))
 
 ames |> 
   ggplot(aes(x=Sale_Price)) + 
@@ -30,10 +37,10 @@ ames |>
 
 ```
 
-# Spliting Train and Test data
+### Spliting Train and Test data
 
-## Random - traditional - spliting
-```{r}
+#### Random - traditional - spliting
+```{r traditional spliting}
 
 set.seed(101)
 
@@ -53,9 +60,9 @@ ames_train |>
 
 ```
 
-## Stratified Spliting (maintaning the distribution of a series)
+#### Stratified Spliting (maintaning the distribution of a series)
 
-```{r}
+```{r Stratified Spliting}
 
 set.seed(100)
 
@@ -75,8 +82,8 @@ ames_train |>
 
 ```
 
-## Spliting Validation and Training sets
-```{r}
+#### Spliting Validation and Training sets
+```{r Spliting Validation}
 
 set.seed(52) 
 
@@ -94,7 +101,64 @@ ames_test <- ames_val_split |>
 
 ```
 
+## Chapter 6
 
+### Fitting Models with Parsnip 
+
+For tidymodels, the approach to specifying a model is intended to be more unified:
+
+1 - Specify the type of model based on its mathematical structure (e.g., linear regression, random forest, KNN, etc).
+
+2 - Specify the engine for fitting the model. Most often this reflects the software package that should be used, like Stan or glmnet. These are models in their own right, and parsnip provides consistent interfaces by using these as engines for modeling.
+
+3 - When required, declare the mode of the model. The mode reflects the type of prediction outcome. For numeric outcomes, the mode is regression; for qualitative outcomes, it is classification. If a model algorithm can only address one type of prediction outcome, such as linear regression, the mode is already set.
+
+These specifications are built without referencing the data. For example, for the three cases we outlined:
+
+
+```{r}
+library(tidymodels)
+
+tidymodels_prefer()
+
+linear_reg() |>
+  set_engine("lm")
+# computational engine can be: lm, glmnet or stan 
+
+linear_reg() |> 
+  set_engine("lm") |> 
+  translate()
+
+```
+
+### House prices - long and lat
+
+```{r}
+
+lm_model <- linear_reg() |>
+  set_engine("lm")
+
+lm_form_fit <- lm_model %>% 
+  fit(Sale_Price ~ Longitude + Latitude, data = ames_train)
+
+lm_form_fit |> tidy()
+  
+lm_xy_fit <- 
+  lm_model %>% 
+  fit_xy(
+    x = ames_train %>% select(Longitude, Latitude),
+    y = ames_train %>% pull(Sale_Price))
+
+```
+
+```{r}
+
+rand_forest(trees = 1000, min_n = 5) %>% 
+  set_engine("ranger") %>% 
+  set_mode("regression") %>% 
+  translate()
+
+```
 
 
 
