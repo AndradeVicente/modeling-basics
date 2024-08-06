@@ -1,0 +1,116 @@
+---
+title: "PCA-1"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(factoextra)
+```
+
+
+# USArrests
+```{r}
+
+USArrests |> head(2)
+
+```
+
+```{r}
+
+# x <- scale(USArrests[, c("Murder", "Assault")], center = TRUE, scale = FALSE)
+
+x <- USArrests |> 
+  select(Murder, Assault) |> 
+  scale(center = TRUE, scale = FALSE)
+
+x |> 
+  apply(2, mean)
+
+x |> 
+  apply(2, sd)
+
+cov(x) # cov positiva entre murder e assaoult
+plot(x) # como esperado, relação positiva entre eles
+
+```
+
+```{r}
+
+pca <- prcomp(x) 
+
+Phi <- pca$rotation
+
+```
+
+```{r}
+
+pca$rotation <- -pca$rotation
+pca$x <- -pca$x
+
+pca |> 
+  biplot(scale = 0, cex = 0.75, 
+         xlab = "PC1 = Criminality",
+         ylab = "PC2 = Urbanization")
+
+
+```
+
+```{r}
+
+# proportion of variance explained
+(pve <- cumsum(pca$sdev^2) / sum(pca$sdev^2))
+
+```
+
+```{r}
+
+library(factoextra)
+
+pca |> 
+  fviz_pca_biplot(repel = TRUE,
+                  geom = c("point","text"),
+                  xlab = "Criminality",
+                  ylab = "Urbanization")
+
+
+```
+
+```{r}
+
+# checando via decomposição espectral
+
+eig <- eigen(cov(x))
+eig$values # em ordem decrescente
+eig$vectors # são os vetores de cargas das PC's
+prcomp(x)$rotation
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
